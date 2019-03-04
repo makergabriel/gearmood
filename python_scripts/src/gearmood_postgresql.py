@@ -2,6 +2,7 @@ import psycopg2
 import configparser
 import os.path
 from psycopg2.extras import Json
+import env_config
 
 def table_exists(con, table_str):
 
@@ -20,7 +21,6 @@ def table_exists(con, table_str):
     return exists
 
 def get_table_col_names(con, table_str):
-
     col_names = []
     try:
         cur = con.cursor()
@@ -36,19 +36,13 @@ def get_table_col_names(con, table_str):
 
 class GearMoodPS:
     def __init__(self):
-        config = configparser.ConfigParser()
-        my_path = os.path.abspath(os.path.dirname(__file__))
-        config_path = os.path.join(my_path, "../config/gearmood-ps.ini")
-        config.read(config_path)
-        print(config.options("DatabaseSection"))
-        db_section = config.options("DatabaseSection")
-        dbname = config.get("DatabaseSection","database.dbname")
-        print(db_section, dbname)
+        config = env_config.EnvConfig()
         try:
-            self.conn = psycopg2.connect("dbname='" + config.get("DatabaseSection","database.dbname") +
-            "' user='" + config.get("DatabaseSection","database.user") +
-            "' host='" + config.get("DatabaseSection","database.host") +
-            "' password='" + config.get("DatabaseSection","database.password") +"'")
+            self.conn = psycopg2.connect(
+                "dbname='" + config.get_value("DatabaseSection","database.dbname") +
+                "' user='" + config.get_value("DatabaseSection","database.user") +
+                "' host='" + config.get_value("DatabaseSection","database.host") +
+                "' password='" + config.get_value("DatabaseSection","database.password") +"'")
         except:
             print("Unexpected error:")
             raise
@@ -57,8 +51,12 @@ class GearMoodPS:
 
     def save_shakedown(self, shakedown):
         cur = self.conn.cursor()
-        cur.execute("INSERT into shake (subreddit_id, submission_id, title, data) values (%s, %s, %s, %s)",
-                    (shakedown["subreddit_id"], shakedown["id"], shakedown["title"], Json(shakedown)))
+        cur.execute("INSERT INTO shake (submission_id, subreddit_id, title, data) " +
+                    "VALUES (%s, %s, %s, %s) " +
+                    "ON Conflict (submission_id) DO UPDATE SET data = %s",
+                    (shakedown["id"], shakedown["subreddit_id"],
+                    shakedown["title"], Json(shakedown), Json(shakedown)))
+        #print("Shakedown {} : {}".format(shakedown["title"], "https://www.reddit.com/" + shakedown["id"]))
         self.conn.commit()
         cur.close()
 
