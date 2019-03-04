@@ -7,7 +7,7 @@ gmbclient = pymongo.MongoClient("mongodb://localhost:27017/")
 
 gmbdb = gmbclient["gearmoodbot"]
 shakedownreqcoll = gmbdb["shakedownreq"]
-candidatesentencecoll = gmbdb["candidatesentence"]
+candidatesentencecoll = gmbdb["Sentence"]
 
 def checkgmbdb():
 	print(gmbclient.list_database_names())
@@ -19,7 +19,7 @@ def checkgmbdb():
 	collist = gmbdb.list_collection_names()
 	if "shakedownreq" in collist:
 		print("shakedownreq collection exists.", )
-	if "candidatesentence" in collist:
+	if "Sentence" in collist:
 		print("candidatesentence collection exists.", )
 	
 def save(shakedown_req):
