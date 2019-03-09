@@ -52,6 +52,7 @@ source venv/bin/activate
 # you should see (venv) in front of you terminal prompt now
 # install all the required python packages to your virtual env
 pip install -r requirements.txt
+```
 
 ### Prerequisites
 macbook pro - just kidding, whatever you got just tweak your commands per OS
