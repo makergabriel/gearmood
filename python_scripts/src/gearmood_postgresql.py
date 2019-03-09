@@ -47,6 +47,7 @@ class GearMoodPS:
             print("Unexpected error:")
             raise
         table_exists(self.conn, "shake")
+        table_exists(self.conn, "sentence")
 
 
     def save_shakedown(self, shakedown):
@@ -76,6 +77,16 @@ class GearMoodPS:
         print("result: {}".format(self))
         cur.close()
         return result
+
+    def save_sentence(self, submission_id, cut_sentences):
+        cur = self.conn.cursor()
+        for cut_sentence in cut_sentences:
+            cur.execute("INSERT INTO cut_sentence (submission_id, words, sentence) " +
+                        "VALUES (%s, %s, %s)",
+                        #"ON Conflict (submission_id) DO UPDATE SET words = %s, sentence = %s",
+                        (submission_id, Json(cut_sentence["words"]), cut_sentence["sentence"]))
+        self.conn.commit()
+        cur.close()
     
 if __name__ == '__main__':
     GearMoodPS()

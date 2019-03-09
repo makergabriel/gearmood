@@ -1,5 +1,11 @@
+.DS_Store
+.vscode
+
 praw.ini
 gearmood.ini
+
 __pycache__
+venv
+
 node_modules
-.DS_Store
+node
