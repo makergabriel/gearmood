@@ -2,7 +2,7 @@ import psycopg2
 import configparser
 import os.path
 from psycopg2.extras import Json
-import env_config
+from utils.env_config import EnvConfig
 
 def table_exists(con, table_str):
 
@@ -36,7 +36,7 @@ def get_table_col_names(con, table_str):
 
 class GearMoodPS:
     def __init__(self):
-        config = env_config.EnvConfig()
+        config = EnvConfig()
         try:
             self.conn = psycopg2.connect(
                 "dbname='" + config.get_value("DatabaseSection","database.dbname") +

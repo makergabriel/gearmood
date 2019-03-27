@@ -3,3 +3,5 @@ praw
 nltk
 pytz
 black
+pylint
+pymongo

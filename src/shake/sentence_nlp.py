@@ -2,7 +2,6 @@ import nltk
 from nltk.tokenize import sent_tokenize
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
-import env_config
 
 # TODO move cut words to config
 cut_words = (
@@ -40,10 +39,11 @@ VERB_CODES = {
 
 class Sentence:
     def __init__(self):
-        config = env_config.EnvConfig()
+        pass
+        #config = env_config.EnvConfig()
 
-    def parse_candidate_text(self, text, sentence):
-        parsed_text = {"sentence": sentence}
+    def parse_candidate_text(self, text):
+        parsed_text = {}
         cut_word_objs = []
         # take a closer look at which cut word is used in the sentence and how it's used
         for cut_word in cut_words:
@@ -77,6 +77,7 @@ class Sentence:
             text = nltk.Text(tokens)
             # only dive into tokenized senntences that have any of our cut words
             if any(x in text for x in cut_words):
-                parsed_text = self.parse_candidate_text(text, sentence)
+                parsed_text = self.parse_candidate_text(text)
+                parsed_text["sentence"] = sentence
                 cut_sentences.append(parsed_text)
         return cut_sentences

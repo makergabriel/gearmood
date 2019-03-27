@@ -3,7 +3,7 @@ from nltk.tokenize import sent_tokenize
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 
-import gearmood_mongo
+import repository.gearmood_mongo
 import sys, getopt
 
 gearmood_mongo.checkgmbdb()

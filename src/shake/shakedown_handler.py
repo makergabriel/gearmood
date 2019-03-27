@@ -1,8 +1,8 @@
-import praw
 import re
-import gearmood_postgresql
-import env_config
-import sentence_nlp
+import praw
+from repository.gearmood_postgresql import GearMoodPS
+from utils.env_config import EnvConfig
+from shake.sentence_nlp import Sentence
 
 REPLACE_NO_SPACE = re.compile(r"(\;)|(\:)|(\!)|(\')|(\?)|(\,)|(\")|(\’)|(\*)")
 REPLACE_WITH_SPACE = re.compile(r"(<br\s*/><br\s*/>)|(\-)|(\[)|(\])|(\/)|(\.)|(\()|(\))|(\n)")
@@ -16,8 +16,8 @@ def preprocess_text(text):
 
 class Shakedown:
     def __init__(self):
-        config = env_config.EnvConfig()
-        self.sentence = sentence_nlp.Sentence()
+        config = EnvConfig()
+        self.sentence = Sentence()
         # connect to reddit
         # this requires some setup on reddit to use the apis
         # TODO write up in README.md
@@ -26,7 +26,7 @@ class Shakedown:
             user_agent=config.get_value("Reddit", "user_agent"),
         )
         self.ultralight = self.reddit.subreddit(config.get_value("Reddit", "subreddit"))
-        self.gearmood_ps = gearmood_postgresql.GearMoodPS()
+        self.gearmood_ps = GearMoodPS()
 
     # TODO extract to handler class
     # Find shakedown requests on r/ultralight using the flair
@@ -73,7 +73,7 @@ class Shakedown:
             "created_dt": submission.created_utc,
         }
         return shake
-
+	
     def clean_non_negotiable_items(self, submission):
         non_negotiable_items = re.findall(
             "non-?negotiable\\s?items?:?\\s*(.*)\n", submission.selftext.lower()
