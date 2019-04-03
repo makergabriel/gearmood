@@ -7,5 +7,6 @@ gearmood.ini
 __pycache__
 venv
 
-node_modules
-node
+*.egg-
+.noseids
+.pytest_cache

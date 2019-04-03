@@ -1,5 +1,6 @@
 import re
 import praw
+#import repository.gearmood_postgresql
 from repository.gearmood_postgresql import GearMoodPS
 from utils.env_config import EnvConfig
 from shake.sentence_nlp import Sentence
@@ -56,7 +57,7 @@ class Shakedown:
             submission, comment_limit
         )
 
-        cut_sentences = self.sentence.parse_comments(comments_raw)
+        cut_sentences = self.sentence.parse_comments(comments_raw, self.sentence.cut_words)
         print(cut_sentences)
 
         shake = {
@@ -86,6 +87,7 @@ class Shakedown:
     # TODO Preserve the comment id so it can be attached to the sentence later
     # TODO refactor to get the sentences from each comment
     # TODO get the comment update_dt to know if we already processed it
+    #@PendingDeprecationWarning
     def extract_comments(self, submission, comment_limit):
         submission.comments.replace_more(limit=comment_limit)
         comments = submission.comments.list()
@@ -105,6 +107,28 @@ class Shakedown:
             comments_raw += comment.body
         return comments_raw, comments_clean, comments_links
 
+    def extract_cut_sentences_from_comments(self, submission, comment_limit):
+        comments_with_cut_sentences = []
+        submission.comments.replace_more(limit=comment_limit)
+        comments = submission.comments.list()
+        for comment in comments:
+            text_and_links = self.filter_links_from_text(comment.body)
+            clean_text = preprocess_text(text_and_links.get("text_no_links"))
+            sentences = self.sentence.parse_comments(clean_text, self.sentence.cut_words)
+            
+
+    def get_links_from_text(self, text):
+        return re.findall("https?://[^\\s|\\]|\\)]+", text)
+
+    def filter_links_from_text(self, text):
+        links = self.get_links_from_text(text)
+        if links:
+            link_pattern = re.compile("(https?://[^\\s|\\]|\\)]+)")
+            text_no_links = link_pattern.sub("", text)
+        else:
+            text_no_links = text
+        return {"text_no_links": text_no_links, "links": links}
+        
     def get_shakedown_req_by_id(self, submission_id):
         submission = self.reddit.submission(id=submission_id)
         self.get_and_save_shakedown(submission, 100, True)
@@ -115,5 +139,5 @@ if __name__ == "__main__":
     # TODO move the limits to command line arguments
     # TODO maintain starting point
 
-    shakedown.get_shakedown_reqs(500, 100, True)
-    # shakedown.get_shakedown_req_by_id("ay4ana")
+    # shakedown.get_shakedown_reqs(500, 100, True)
+    shakedown.get_shakedown_req_by_id("ay4ana")

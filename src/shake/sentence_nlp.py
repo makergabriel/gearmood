@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 
 # TODO move cut words to config
-cut_words = (
+CUT_WORDS = (
     "drop",
     "cut",
     "leave",
@@ -39,14 +39,14 @@ VERB_CODES = {
 
 class Sentence:
     def __init__(self):
-        pass
+        self.cut_words = CUT_WORDS
         #config = env_config.EnvConfig()
 
     def parse_candidate_text(self, text):
         parsed_text = {}
         cut_word_objs = []
         # take a closer look at which cut word is used in the sentence and how it's used
-        for cut_word in cut_words:
+        for cut_word in self.cut_words:
             if cut_word in text:
                 # check if the cut_word is used as a verb
                 result = nltk.pos_tag(text)
@@ -59,10 +59,10 @@ class Sentence:
         return parsed_text
 
     # refactor to attach the sentence to the comment id
-    def parse_comments(self, comments_raw):
+    def parse_comments(self, text, word_list):
         # sent_toknenize doesn't stop at new lines/carriage returns
         # some comments use just the phrase with a punctuaion
-        paragraphs = [p for p in comments_raw.split("\n") if p]
+        paragraphs = [p for p in text.split("\n") if p]
         sentences = []
         for paragraph in paragraphs:
             sentences.extend(sent_tokenize(paragraph))
@@ -76,7 +76,7 @@ class Sentence:
             # get the text from the tokenized words
             text = nltk.Text(tokens)
             # only dive into tokenized senntences that have any of our cut words
-            if any(x in text for x in cut_words):
+            if any(x in text for x in word_list):
                 parsed_text = self.parse_candidate_text(text)
                 parsed_text["sentence"] = sentence
                 cut_sentences.append(parsed_text)
